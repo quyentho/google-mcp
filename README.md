@@ -1,0 +1,102 @@
+# google-mcp
+
+Self-hosted MCP servers for Google services — **no third-party service
+in the middle**. Each server runs locally over stdio and talks directly
+to Google. One repo, one folder per service.
+
+| Folder | Service | Auth | Tools |
+|---|---|---|---|
+| [`gmail-mcp/`](./gmail-mcp) | Gmail — send + read | App Password (SMTP/IMAP) or OAuth 2.0 | `send_email`, `list_emails`, `get_email`, `gmail_status` |
+| [`sheets-mcp/`](./sheets-mcp) | Google Sheets — read + write | OAuth 2.0 or Service Account | `list_spreadsheets`, `get_spreadsheet`, `read_range`, `update_range`, `append_rows`, `clear_range`, `create_spreadsheet`, `add_sheet`, `sheets_status` |
+| [`calendar-mcp/`](./calendar-mcp) | Google Calendar — read + write | OAuth 2.0 or Service Account | `list_calendars`, `list_events`, `get_event`, `create_event`, `update_event`, `delete_event`, `calendar_status` |
+
+Each folder is a standalone MCP server with its own `server.py`,
+`auth_oauth.py`, `requirements.txt`, `env.example`, `mcp.json` and
+README — run only the ones you need, each with its own `.env` /
+`token.json` / `credentials.json` in its folder.
+
+## Why one repo
+
+These servers share the same pattern (local stdio MCP + direct Google
+API, OAuth or Service Account, `mcp>=1.9,<2`), the same trust model
+(self-hosted, no middleman), and the same Google Cloud project can
+provide the OAuth client for all of them. Keeping them together avoids
+a repo per service.
+
+The old standalone repos are superseded by this one:
+`quyentho/mail-mcp` (Gmail) is now `gmail-mcp/` here, and the Sheets
+server that was going to be `quyentho/googlesheet-mcp` is `sheets-mcp/`
+here instead.
+
+## Quick start (per service)
+
+```bash
+git clone https://github.com/quyentho/google-mcp.git
+cd google-mcp/<service>          # gmail-mcp, sheets-mcp, or calendar-mcp
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+cp env.example .env              # then edit .env
+# OAuth only, once per service:
+python auth_oauth.py             # creates token.json (not needed for App Password or Service Account)
+.venv/bin/python server.py
+```
+
+See each folder's README for its auth setup, scopes, examples and
+security notes — the auth method differs per service:
+
+- **Gmail** is the only one with an App Password option (SMTP/IMAP).
+  Sheets and Calendar have no password login from Google, so they
+  use OAuth 2.0 or a Service Account.
+- **Sheets / Calendar, Service Account:** share the sheet / calendar
+  with the service account's email first — it can only see what is
+  shared with it.
+
+## Wire it into an MCP client
+
+Example for Claude Desktop / Cursor — add one entry per service you use:
+
+```json
+{
+  "mcpServers": {
+    "gmail-smtp": {
+      "command": "python",
+      "args": ["/absolute/path/to/google-mcp/gmail-mcp/server.py"],
+      "env": { "GMAIL_USER": "you@gmail.com", "GMAIL_AUTH_METHOD": "auto" }
+    },
+    "googlesheet": {
+      "command": "python",
+      "args": ["/absolute/path/to/google-mcp/sheets-mcp/server.py"],
+      "env": { "SHEETS_AUTH_METHOD": "auto" }
+    },
+    "google-calendar": {
+      "command": "python",
+      "args": ["/absolute/path/to/google-mcp/calendar-mcp/server.py"],
+      "env": { "CALENDAR_AUTH_METHOD": "auto" }
+    }
+  }
+}
+```
+
+Each folder also has a ready `mcp.json` example. Prefer the `.env`
+file over putting secrets in the client config.
+
+## Security notes
+
+- Never commit `.env`, `token.json`, `credentials.json`, or
+  `service-account.json` — they are in the root `.gitignore` (and each
+  folder's `.gitignore`).
+- Each OAuth token is scoped to its own service only.
+- Write tools **do** modify Gmail / Sheets / Calendar — confirm the
+  recipient, spreadsheet/range, or calendar/time before writing,
+  especially on shared sheets and calendars.
+
+## Tested
+
+- `python -m py_compile` for all three `server.py` / `auth_oauth.py` — OK
+- Import + tool registration with `mcp` 1.x — all tools registered
+  (Gmail 4, Sheets 9, Calendar 7)
+- `*_status()` with no credentials fails gracefully, without crashing
+
+Live send/read/write was **not** tested — that needs real Google
+credentials. Try each server's `*_status()` first, then a read-only
+tool (`list_emails`, `list_spreadsheets`, `list_calendars`).

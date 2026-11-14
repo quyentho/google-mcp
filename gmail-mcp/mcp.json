@@ -1,0 +1,15 @@
+{
+    "mcpServers": {
+        "gmail-smtp": {
+            "command": "python",
+            "args": [
+                "/absolute/path/to/google-mcp/gmail-mcp/server.py"
+            ],
+            "env": {
+                "GMAIL_USER": "you@gmail.com",
+                "GMAIL_AUTH_METHOD": "auto",
+                "GMAIL_APP_PASSWORD": "your-16-char-app-password"
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "googlesheet": {
+            "args": [
+                "/absolute/path/to/google-mcp/sheets-mcp/server.py"
+            ],
+            "command": "python",
+            "env": {
+                "SHEETS_AUTH_METHOD": "auto"
+            }
+        }
+    }
+}

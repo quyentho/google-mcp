@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "google-calendar": {
+            "args": [
+                "/absolute/path/to/google-mcp/calendar-mcp/server.py"
+            ],
+            "command": "python",
+            "env": {
+                "CALENDAR_AUTH_METHOD": "auto"
+            }
+        }
+    }
+}

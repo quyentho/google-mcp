@@ -1,0 +1,8 @@
+# Secrets — never commit these, in any subfolder
+.env
+token.json
+credentials.json
+service-account.json
+.venv/
+__pycache__/
+*.pyc
