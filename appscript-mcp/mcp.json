@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "google-apps-script": {
+            "args": [
+                "/absolute/path/to/google-mcp/appscript-mcp/server.py"
+            ],
+            "command": "python",
+            "env": {
+                "APPSCRIPT_AUTH_METHOD": "auto"
+            }
+        }
+    }
+}

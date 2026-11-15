@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "google-docs": {
+            "args": [
+                "/absolute/path/to/google-mcp/docs-mcp/server.py"
+            ],
+            "command": "python",
+            "env": {
+                "DOCS_AUTH_METHOD": "auto"
+            }
+        }
+    }
+}

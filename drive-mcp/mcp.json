@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "google-drive": {
+            "args": [
+                "/absolute/path/to/google-mcp/drive-mcp/server.py"
+            ],
+            "command": "python",
+            "env": {
+                "DRIVE_AUTH_METHOD": "auto"
+            }
+        }
+    }
+}
